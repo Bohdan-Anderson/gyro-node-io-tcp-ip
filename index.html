@@ -1,0 +1,92 @@
+<html>
+<head>
+	<title>Socket IO</title>
+
+  <style type="text/css">
+      #ball{
+          width: 20px;
+          height: 20px;
+          position: fixed;
+          left: 0;
+          top: 0;
+          background-color: #000;
+          -moz-border-radius: 50%;
+          -webkit-border-radius: 50%;
+
+          -moz-box-shadow: 10px 10px 5px #888;
+          -webkit-box-shadow: 10px 10px 5px #888;
+          box-shadow: 10px 10px 5px #888;
+      }
+  </style>
+</head>
+<body>
+
+<div id="ball"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://192.168.1.105:8124/');
+  var id;
+  socket.on('setup', function (data) {
+    console.log(data);
+    id = data.id;
+  });
+
+  var gX = 0;
+  var gY = 0;
+
+  function movedSend(){
+    var d = new Date().getTime();
+    console.log(d);
+    socket.emit("message",{"id":id,"x":gX,"y":gY});
+  }
+
+  var ball = document.getElementById("ball");
+  var width, height;
+  width = window.innerWidth;
+  height = window.innerHeight;
+
+
+  function tilt(x,y){
+      var reply = false;
+      if(x[0] > gX+2 || x[0]< gX-2){
+        gX = x[0];
+        reply = true;
+      }
+      if(x[1] > gY+2 || x[1]<gY-2){
+        gY = x[1];
+        reply = true;
+      }
+      if(reply){
+        console.log("should be sending");
+        movedSend();
+      }
+
+
+      ball.style.left =width/2 + 10;
+      ball.style.top =height/2 + 10;
+
+      ball.style.MozBoxShadow = x[1] +"px " + x[0] + "px 5px #888";
+      ball.style.WebkitBoxShadow = x[1] +"px " + x[0] + "px 5px #888";
+      ball.style.boxShadow = x[1] +"px " + x[0] + "px 5px #888";
+
+  }
+
+  if (window.DeviceOrientationEvent) {
+      window.addEventListener("deviceorientation", function () {
+          tilt([event.beta, event.gamma]);
+      }, true);
+  } else if (window.DeviceMotionEvent) {
+      window.addEventListener('devicemotion', function () {
+          tilt([event.acceleration.x * 2, event.acceleration.y * 2]);
+      }, true);
+  } else {
+      window.addEventListener("MozOrientation", function () {
+          tilt([orientation.x * 50, orientation.y * 50]);
+      }, true);
+  }
+
+
+</script>
+</body>
+</html>
