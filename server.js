@@ -66,9 +66,9 @@ function newServer(writeTo){
 			writeTo.write(data.id+ " ");
 			writeTo.write(Math.floor(data.x) + " ");
 			writeTo.write(Math.floor(data.y) + "");
-			writeTo.write("\n");			
+			writeTo.write("\n");
 			//console.log(data);
 		});
 
 	});
-}	
+}
