@@ -1,7 +1,7 @@
 <html>
 <head>
 	<title>Socket IO</title>
-
+<!-- 
   <style type="text/css">
       #ball{
           width: 20px;
@@ -18,27 +18,38 @@
           box-shadow: 10px 10px 5px #888;
       }
   </style>
+   -->
 </head>
 <body>
 
-<div id="ball"></div>
+<!-- <div id="ball"></div> -->
+<h1 id="console"></h1>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io.connect('http://192.168.1.101:8124/');
-  var id;
+// options for input are :
+//    gyro
+//    accel
+//    compass
+  var input = "compass",
+  socket = io.connect('http://192.168.100.114:8124/'),
+  id = 0,
+  ax = 0,
+  ay = 0,
+  outEl = document.getElementById("console");
+
   socket.on('setup', function (data) {
     console.log(data);
     id = data.id;
   });
 
-  var gX = 0;
-  var gY = 0;
 
-  function movedSend(){
-    var d = new Date().getTime();
-    console.log(d);
-    socket.emit("message",{"id":id,"x":gX,"y":gY});
+
+  function movedSend(one,two){
+    // var d = new Date().getTime();
+    // console.log(d);
+    console.log(one,two);
+    socket.emit("message",{"id":id,"x":one,"y":two});
   }
 
   var ball = document.getElementById("ball");
@@ -46,46 +57,91 @@
   width = window.innerWidth;
   height = window.innerHeight;
 
+//Webcam!!
 
+
+
+//Compass!!
+window.addEventListener('deviceorientation', function(e) {
+  if(input == "compass"){
+    var heading = e.webkitCompassHeading + window.orientation;
+    if(heading !== 0){
+      input = "gyro-compass";
+    }
+    outEl.innerHTML = heading;
+  }
+})
+
+
+
+//Accelerometer!!!
+  if(window.DeviceMotionEvent){
+    window.ondevicemotion = function(event) {
+      if(input == "accel"){
+        if(ax < event.accelerationIncludingGravity.x-1 || ax > event.accelerationIncludingGravity.x+1 || ay < event.accelerationIncludingGravity.y-1 || ay > event.accelerationIncludingGravity.y+1){
+          ax = event.accelerationIncludingGravity.x;
+          ay = event.accelerationIncludingGravity.y;
+          movedSend(ax, ay);
+          outEl.innerHTML = ax + " " + ay;
+        }
+      }
+    }
+  }
+
+
+
+//Gyro stuff!!!
   function tilt(x,y){
-      var reply = false;
-      if(x[0] > gX+2 || x[0]< gX-2){
-        gX = x[0];
-        reply = true;
-      }
-      if(x[1] > gY+2 || x[1]<gY-2){
-        gY = x[1];
-        reply = true;
-      }
-      if(reply){
-        console.log("should be sending");
-        movedSend();
-      }
+    var xin = Math.floor(x[0]*100)/100;
+    var yin = Math.floor(x[1]*100)/100;
+    var gX = 0;
+    var gY = 0;
+    var reply = false;
+    var varience = 10;
+    if(gX < xin-varience || gX > xin+varience || gY < yin-varience || gY > yin+varience){
+      gX = xin;
+      gY = yin;
+      reply = true;
+    }
+    // if(x[0] > gX+varience || x[0]< gX-varience){
+    //   reply = true;
+    // }
+    // if(x[1] > gY+varience || x[1]<gY-varience){
+    //   reply = true;
+    // }
+    if(reply){
+      outEl.innerHTML = gX + " " + gY;
+      movedSend(gX,gY);
+    }
 
 
-      ball.style.left =width/2 + 10;
-      ball.style.top =height/2 + 10;
+    // ball.style.left =width/2 + 10;
+    // ball.style.top =height/2 + 10;
 
-      ball.style.MozBoxShadow = x[1] +"px " + x[0] + "px 5px #888";
-      ball.style.WebkitBoxShadow = x[1] +"px " + x[0] + "px 5px #888";
-      ball.style.boxShadow = x[1] +"px " + x[0] + "px 5px #888";
-
+    // ball.style.MozBoxShadow = x[1] +"px " + x[0] + "px 5px #888";
+    // ball.style.WebkitBoxShadow = x[1] +"px " + x[0] + "px 5px #888";
+    // ball.style.boxShadow = x[1] +"px " + x[0] + "px 5px #888";
   }
 
   if (window.DeviceOrientationEvent) {
       window.addEventListener("deviceorientation", function () {
-          tilt([event.beta, event.gamma]);
+          if(input == "gyro" || input == "gyro-compass"){
+            tilt([event.beta, event.gamma]);
+          }
       }, true);
   } else if (window.DeviceMotionEvent) {
       window.addEventListener('devicemotion', function () {
-          tilt([event.acceleration.x * 2, event.acceleration.y * 2]);
+          if(input == "gyro" || input == "gyro-compass"){
+            tilt([event.acceleration.x * 2, event.acceleration.y * 2]);
+          }
       }, true);
   } else {
       window.addEventListener("MozOrientation", function () {
-          tilt([orientation.x * 50, orientation.y * 50]);
+          if(input == "gyro" || input == "gyro-compass"){
+            tilt([orientation.x * 50, orientation.y * 50]);
+          }
       }, true);
   }
-
 
 </script>
 </body>

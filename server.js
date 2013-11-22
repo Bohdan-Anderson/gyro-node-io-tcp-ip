@@ -40,7 +40,7 @@ function newServer(writeTo){
 
 	var idCounter = 0;
 	var http = require('http');
-	var fs = require('fs');	
+	var fs = require('fs');
 
 	var httpServer = http.createServer(function (req, res){
 		fs.readFile(__dirname +'/index.html', 'utf8', function(err, data){
