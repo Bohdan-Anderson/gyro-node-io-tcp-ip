@@ -27,10 +27,6 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-<<<<<<< HEAD
-  var socket = io.connect('http://192.168.100.107:8124/');
-  var id;
-=======
 // options for input are :
 //    gyro
 //    accel
@@ -42,7 +38,6 @@
   ay = 0,
   outEl = document.getElementById("console");
 
->>>>>>> 11ff844d90731c4871a804ba763994858b0dfdca
   socket.on('setup', function (data) {
     console.log(data);
     id = data.id;
