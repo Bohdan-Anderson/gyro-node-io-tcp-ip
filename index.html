@@ -31,8 +31,8 @@
 //    gyro
 //    accel
 //    compass
-  var input = "compass",
-  socket = io.connect('http://192.168.100.114:8124/'),
+  var input = "gyro",
+  socket = io.connect('http://192.168.100.107:8124/'),
   id = 0,
   ax = 0,
   ay = 0,
@@ -89,16 +89,15 @@ window.addEventListener('deviceorientation', function(e) {
   }
 
 
-
+  var gX = 0;
+  var gY = 0;
 //Gyro stuff!!!
   function tilt(x,y){
     var xin = Math.floor(x[0]*100)/100;
     var yin = Math.floor(x[1]*100)/100;
-    var gX = 0;
-    var gY = 0;
     var reply = false;
     var varience = 10;
-    if(gX < xin-varience || gX > xin+varience || gY < yin-varience || gY > yin+varience){
+    if(xin < gX-varience || xin > gX+varience ||yin < gY-varience || yin > gY+varience){
       gX = xin;
       gY = yin;
       reply = true;
