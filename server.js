@@ -40,7 +40,7 @@ function newServer(writeTo){
 
 	var idCounter = 0;
 	var http = require('http');
-	var fs = require('fs');	
+	var fs = require('fs');
 
 	var httpServer = http.createServer(function (req, res){
 		fs.readFile(__dirname +'/index.html', 'utf8', function(err, data){
@@ -66,9 +66,9 @@ function newServer(writeTo){
 			writeTo.write(data.id+ " ");
 			writeTo.write(Math.floor(data.x) + " ");
 			writeTo.write(Math.floor(data.y) + "");
-			writeTo.write("\n");			
+			writeTo.write("\n");
 			//console.log(data);
 		});
 
 	});
-}	
+}
